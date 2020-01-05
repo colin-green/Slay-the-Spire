@@ -1,0 +1,14 @@
+{
+  "name": "slay-the-spire",
+  "version": "1.0.0",
+  "description": "",
+  "main": "cards.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Colin Green",
+  "license": "ISC",
+  "dependencies": {
+    "inquirer": "^7.0.1"
+  }
+}
