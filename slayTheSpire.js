@@ -1,146 +1,51 @@
-var inquirer = require('inquirer');
+// var inquirer = require('inquirer');
+var cards = require('./cards');
 
-class Strike {
+console.log(cards);
+
+class Character {
     constructor() {
-        this.name = 'Strike';
-        this.type = 'Attack';
-        this.cost = 1;
-        this.damage = 6;
-        this.upgraded = false;
-    }
-
-    upgrade() {
-        console.log(`Upgrading ${this.name}.`);
-        this.name += '+';
-        this.upgraded = true;
-        this.damage = 9;
+        this.gold = 99;
+        this.energy = 3;
+        this.potionBeltSize = 3;
+        this.cardChoicCount = 3;
+        this.relics = [];
     }
 }
 
-class Defend {
+class Ironclad extends Character {
     constructor() {
-        this.name = 'Defend';
-        this.type = 'Skill';
-        this.cost = 1;
-        this.block = 5;
-        this.upgraded = false;
-    }
-
-    upgrade() {
-        console.log(`Upgrading ${this.name}.`);
-        this.name += '+';
-        this.upgraded = true;
-        this.block = 8;
+        super();
+        this.name = 'Ironclad';
+        this.maxHP = 80;
     }
 }
 
-class AscendersBane {
+class Silent extends Character {
     constructor() {
-        this.name = 'Ascender\'s Bane';
-        this.type = 'Curse';
-        this.unplayable = true;
+        super();
+        this.name = 'Silent';
+        this.maxHP = 70;
     }
 }
 
-class Bash {
+class Defect extends Character {
     constructor() {
-        this.name = 'Bash';
-        this.type = 'Attack';
-        this.cost = 2;
-        this.damage = 8;
-        this.vulnerable = 2;
-        this.upgraded = false;
-    }
-
-    upgrade() {
-        console.log(`Upgrading ${this.name}.`);
-        this.name += '+';
-        this.upgraded = true;
-        this.damage = 10;
-        this.vulnerable = 3;
+        super();
+        this.name = 'Defect';
+        this.maxHP = 75;
     }
 }
 
-class Neutralize {
+class Watcher extends Character {
     constructor() {
-        this.name = 'Neutralize';
-        this.type = 'Attack';
-        this.cost = 0;
-        this.damage = 3;
-        this.weak = 1;
-        this.upgraded = false;
+        super();
+        this.name = 'Watcher';
+        this.maxHP = 72;
     }
-
-    upgrade() {
-        console.log(`Upgrading ${this.name}.`);
-        this.name += '+';
-        this.upgraded = true;
-        this.damage = 4;
-        this.weak = 2;
-    }
-}
-
-class Survivor {
-    constructor() {
-        this.name = 'Survivor';
-        this.type = 'Skill';
-        this.cost = 1;
-        this.block = 8;
-        this.upgraded = false;
-    }
-
-    upgrade() {
-        console.log(`Upgrading ${this.name}.`);
-        this.name += '+';
-        this.upgraded = true;
-        this.block = 11;
-    }
-
-    // discard() {
-
-    // }
-}
-
-class Zap {
-    constructor() {
-        this.name = 'Zap';
-        this.type = 'Skill';
-        this.cost = 1;
-        this.channelLightning = 1;
-        this.upgraded = false;
-    }
-
-    upgrade() {
-        console.log(`Upgrading ${this.name}.`);
-        this.name += '+';
-        this.upgraded = true;
-        this.cost = 0;
-    }
-}
-
-class Dualcast {
-    constructor() {
-        this.name = 'Dualcast';
-        this.type = 'Skill';
-        this.cost = 1;
-        this.evokeOrb = 2;
-        this.upgraded = false;
-    }
-
-    upgrade() {
-        console.log(`Upgrading ${this.name}.`);
-        this.name += '+';
-        this.upgraded = true;
-        this.cost = 0;
-    }
-}
-
-function crackedCore() {
-    return orbs[0] = 'Lightning';
 }
 
 var character = "Ironclad";
-var orbs;
 var relics = [];
 var drawPile = [];
 var hand = [];
@@ -193,18 +98,15 @@ function drawCards(num) {
 
     for (let i = 0; i < num; i++) {
 
-        if (drawPile.length == 0) {
+        if (drawPile.length === 0) {
             reshuffle();
-            var drawnCardIndex = Math.floor(Math.random() * drawPile.length);
-            var drawnCard = drawPile[drawnCardIndex];
-            hand.push(drawnCard);
-            drawPile.splice(drawnCardIndex, 1); 
-        } else {
-            var drawnCardIndex = Math.floor(Math.random() * drawPile.length);
-            var drawnCard = drawPile[drawnCardIndex];
-            hand.push(drawnCard);
-            drawPile.splice(drawnCardIndex, 1);  
-        }      
+        }
+
+        var drawnCardIndex = Math.floor(Math.random() * drawPile.length);
+        var drawnCard = drawPile[drawnCardIndex];
+        hand.push(drawnCard);
+        drawPile.splice(drawnCardIndex, 1);      
+              
     }
 
     showHand();
@@ -217,15 +119,15 @@ function endTurn() {
 
     console.log('Ending turn.');
 
-    for (let i = 0; i < hand.length; i++) {
-        
-        if (hand[i] == 'Ascender\'s Bane') {
-            exhaust.push(hand[i]);
+    hand.forEach(card => {
+
+        if (card.ethereal) {
+            exhaust.push(card);
         } else {
-            discard.push(hand[i]);
+            discard.push(card);
         }
         
-    }
+    })
 
     hand = [];
 
@@ -238,13 +140,17 @@ function endTurn() {
 
 function reshuffle() {
 
-    for (let i = 0; i < discard.length; i++) {
+    console.log('Shuffling deck.\n')
 
-        drawPile.push(discard[i]);
-        
+    let discardSize = discard.length;
+
+    for (let i = 0; i < discardSize; i++) {
+        let roll = Math.floor(Math.random() * discard.length);
+        drawPile.push(discard[roll]);
+        discard.splice(roll, 1);
     }
 
-    discard = [];
+    // discard = [];
 
 }
 
@@ -284,7 +190,7 @@ function showDiscard() {
     console.log('\n');
 }
 
-createStarterDeck();
-drawCards(5);
+// createStarterDeck();
+// drawCards(5);
 // endTurn();
 // endTurn();
