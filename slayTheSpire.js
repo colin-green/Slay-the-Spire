@@ -1,6 +1,7 @@
 // var inquirer = require('inquirer');
 var cards = require('./cards');
 var relics = require('./relics');
+var enemies = require('./enemies');
 
 class Character {
     constructor() {
@@ -9,7 +10,7 @@ class Character {
         this.currentEnergy = 3;
         this.potionBeltSize = 3;
         this.cardChoicCount = 3;
-        this.deck = [new cards.colorlessCardPool[0], new cards.colorlessCardPool[0], new cards.colorlessCardPool[0], new cards.colorlessCardPool[0], new cards.colorlessCardPool[1], new cards.colorlessCardPool[1], new cards.colorlessCardPool[1], new cards.colorlessCardPool[1], new cards.cursePool[0]];
+        this.deck = [findCardRelicEnemy(cards.colorlessCardPool, 'Strike'), findCardRelicEnemy(cards.colorlessCardPool, 'Strike'), findCardRelicEnemy(cards.colorlessCardPool, 'Strike'), findCardRelicEnemy(cards.colorlessCardPool, 'Strike'), findCardRelicEnemy(cards.colorlessCardPool, 'Defend'), findCardRelicEnemy(cards.colorlessCardPool, 'Defend'), findCardRelicEnemy(cards.colorlessCardPool, 'Defend'), findCardRelicEnemy(cards.colorlessCardPool, 'Defend'), findCardRelicEnemy(cards.cursePool, 'Ascender\'s Bane')];
         this.relics = [];
         this.potions = [];
         this.block = 0;
@@ -54,6 +55,10 @@ class Watcher extends Character {
 }
 
 var character = new Ironclad;
+var floor = 0;
+var hallwayCounter = 0;
+var prevHallway;
+var prevElite;
 var drawPile = [];
 var hand = [];
 var discard = [];
@@ -61,7 +66,7 @@ var exhaust = [];
 var powersPlayed = [];
 var buffsDebuffs = [];
 
-function findCardRelic(pool, name) {
+function findCardRelicEnemy(pool, name) {
     for (let i = 0; i < pool.length; i++) {
         if ((new pool[i]).name === name) {
             return new pool[i];
@@ -73,29 +78,29 @@ function createStarterDeck() {
 
     switch (character.name) {
         case "Ironclad":
-            character.deck.push(findCardRelic(cards.colorlessCardPool, 'Strike'));           
-            character.deck.push(findCardRelic(cards.ironcladCardPool, 'Bash'));           
-            character.relics.push(findCardRelic(relics.starterRelics, 'Burning Blood'));           
+            character.deck.push(findCardRelicEnemy(cards.colorlessCardPool, 'Strike'));           
+            character.deck.push(findCardRelicEnemy(cards.ironcladCardPool, 'Bash'));           
+            character.relics.push(findCardRelicEnemy(relics.starterRelics, 'Burning Blood'));           
             break;
     
         case "Silent":
-            character.deck.push(findCardRelic(cards.colorlessCardPool, 'Strike'));           
-            character.deck.push(findCardRelic(cards.colorlessCardPool, 'Defend'));           
-            character.deck.push(findCardRelic(cards.silentCardPool, 'Survivor'));
-            character.deck.push(findCardRelic(cards.silentCardPool, 'Neutralize'));
-            character.relics.push(findCardRelic(relics.starterRelics, 'Ring of the Serpent'));  
+            character.deck.push(findCardRelicEnemy(cards.colorlessCardPool, 'Strike'));           
+            character.deck.push(findCardRelicEnemy(cards.colorlessCardPool, 'Defend'));           
+            character.deck.push(findCardRelicEnemy(cards.silentCardPool, 'Survivor'));
+            character.deck.push(findCardRelicEnemy(cards.silentCardPool, 'Neutralize'));
+            character.relics.push(findCardRelicEnemy(relics.starterRelics, 'Ring of the Serpent'));  
             break;
     
         case "Defect":
-            character.deck.push(findCardRelic(cards.defectCardPool, 'Zap'));
-            character.deck.push(findCardRelic(cards.defectCardPool, 'Dualcast'));
-            character.relics.push(findCardRelic(relics.starterRelics, 'Cracked Core'));
+            character.deck.push(findCardRelicEnemy(cards.defectCardPool, 'Zap'));
+            character.deck.push(findCardRelicEnemy(cards.defectCardPool, 'Dualcast'));
+            character.relics.push(findCardRelicEnemy(relics.starterRelics, 'Cracked Core'));
             break;
 
         case 'Watcher':
-            character.deck.push(findCardRelic(cards.watcherCardPool, 'Vigilance'));
-            character.deck.push(findCardRelic(cards.watcherCardPool, 'Eruption'));
-            character.relics.push(findCardRelic(relics.starterRelics, 'Pure Water'));
+            character.deck.push(findCardRelicEnemy(cards.watcherCardPool, 'Vigilance'));
+            character.deck.push(findCardRelicEnemy(cards.watcherCardPool, 'Eruption'));
+            character.relics.push(findCardRelicEnemy(relics.starterRelics, 'Pure Water'));
             break;
     
         default:
@@ -229,9 +234,27 @@ function whaleBonus() {
     console.log(choices);
 }
 
+function determineHallway() {
+    if (hallwayCounter < 3) {
+        var fights = [findCardRelicEnemy(enemies.act1Enemies, 'Cultist'), findCardRelicEnemy(enemies.act1Enemies, 'Jaw Worm'), 'Louse x2', 'Small Slimes'];
+        if (prevHallway) {
+            fights.splice(fights.indexOf(prevHallway), 1);
+        }
+        var fight = fights[Math.floor(Math.random() * fights.length)];
+        prevHallway = fight;
+        console.log(fight.name);
+    }
+}
+
 // createStarterDeck();
 // console.log(character);
 // drawCards(5);
 // endTurn();
 // endTurn();
 // whaleBonus();
+determineHallway();
+determineHallway();
+determineHallway();
+determineHallway();
+determineHallway();
+determineHallway();
