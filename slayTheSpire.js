@@ -64,7 +64,7 @@ class Watcher extends Character {
 var character = new Ironclad;
 var floor = 0;
 var hallwayCounter = 0;
-var enemies;
+var combatEnemies;
 var turn = 1;
 var prevHallway;
 var prevElite;
@@ -125,14 +125,11 @@ function drawCards(num) {
     for (let i = 0; i < num; i++) {
 
         if (drawPile.length === 0) {
-            reshuffle();
+            shuffleDeck();
         }
 
-        var drawnCardIndex = Math.floor(Math.random() * drawPile.length);
-        var drawnCard = drawPile[drawnCardIndex];
-        hand.push(drawnCard);
-        drawPile.splice(drawnCardIndex, 1);      
-              
+        hand.push(drawPile[0]);
+        drawPile.splice(0, 1);
     }
 
     showHand();
@@ -157,7 +154,7 @@ function endTurn() {
 
     hand = [];
 
-    enemies.forEach(enemy => {
+    combatEnemies.forEach(enemy => {
         enemy.AI();
     })
 
@@ -168,20 +165,22 @@ function endTurn() {
 
 }
 
-function reshuffle() {
+function shuffleDeck(deck) {
 
-    console.log('Shuffling deck.\n')
+    console.log('Shuffling deck.\n');
 
-    let discardSize = discard.length;
-
-    for (let i = 0; i < discardSize; i++) {
-        let roll = Math.floor(Math.random() * discard.length);
-        drawPile.push(discard[roll]);
-        discard.splice(roll, 1);
+    if (discard.length > 0) {
+        discard.forEach(card => {
+            deck.push(card);
+        })
+        discard = [];
     }
 
-    // discard = [];
-
+    for (let i = deck.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1)); // random index from 0 to i
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+      return deck;
 }
 
 function showDrawPile() {
@@ -258,10 +257,10 @@ function determineHallway() {
         
         switch (fight) {
             case 'Cultist':
-                enemies = [findCardRelicEnemy(enemies.act1Enemies, 'Cultist')];
+                combatEnemies = [findCardRelicEnemy(enemies.act1Enemies, 'Cultist')];
                 break;
             case 'Jaw Worm':
-                enemies = [findCardRelicEnemy(enemies.act1Enemies, 'Jaw Worm')];
+                combatEnemies = [findCardRelicEnemy(enemies.act1Enemies, 'Jaw Worm')];
                 break;
             case 'Louse x2':
                 let louse1 = Math.round(Math.random());
@@ -276,14 +275,14 @@ function determineHallway() {
                 } else {
                     louse2 = findCardRelicEnemy(enemies.act1Enemies, 'Louse (Red)');
                 }
-                enemies = [louse1, louse2];
+                combatEnemies = [louse1, louse2];
                 break;
             case 'Small Slimes':
                 let roll = Math.round(Math.random());
                 if (roll === 0) {
-                    enemies = [findCardRelicEnemy(enemies.act1Enemies, 'Spike Slime (M)'), findCardRelicEnemy(enemies.act1Enemies, 'Acid Slime (S)')];
+                    combatEnemies = [findCardRelicEnemy(enemies.act1Enemies, 'Spike Slime (M)'), findCardRelicEnemy(enemies.act1Enemies, 'Acid Slime (S)')];
                 } else {
-                    enemies = [findCardRelicEnemy(enemies.act1Enemies, 'Acid Slime (M)'), findCardRelicEnemy(enemies.act1Enemies, 'Spike Slime (S)')];
+                    combatEnemies = [findCardRelicEnemy(enemies.act1Enemies, 'Acid Slime (M)'), findCardRelicEnemy(enemies.act1Enemies, 'Spike Slime (S)')];
                 }
                 break;        
             default:
@@ -301,6 +300,7 @@ function showEnemy(enemies) {
 
 function startCombat(enemies) {
     drawPile = character.deck;
+    shuffleDeck(drawPile);
     console.log('New combat:\n');
     showEnemy(enemies);
     enemies.forEach(enemy => enemy.AI());
@@ -316,5 +316,5 @@ createStarterDeck();
 // endTurn();
 // whaleBonus();
 determineHallway();
-startCombat(enemies);
+startCombat(combatEnemies);
 // endTurn();
