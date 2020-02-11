@@ -19,6 +19,19 @@ module.exports = {
                 this.damage = 10;
                 this.vulnerable = 3;
             }
+
+            play(target) {
+                if (character.weak > 0 && character.vulnerable > 0) {
+                    target.currentHP -= Math.floor(this.damage * 1.125);
+                } else if (character.vulnerable > 0) {
+                    target.currentHP -= Math.floor(this.damage * 1.5);
+                } else if (character.weak > 0) {
+                    target.currentHP -= Math.floor(this.damage * 0.75);
+                } else {
+                    target.currentHP -= this.damage;
+                }
+                target.vulnerable += this.vulnerable;
+            }
         },
         class Anger {
             constructor() {
@@ -1430,6 +1443,18 @@ module.exports = {
                 this.upgraded = true;
                 this.damage = 9;
             }
+
+            play(target) {
+                if (character.weak > 0 && character.vulnerable > 0) {
+                    target.currentHP -= Math.floor(this.damage * 1.125);
+                } else if (character.vulnerable > 0) {
+                    target.currentHP -= Math.floor(this.damage * 1.5);
+                } else if (character.weak > 0) {
+                    target.currentHP -= Math.floor(this.damage * 0.75);
+                } else {
+                    target.currentHP -= this.damage;
+                }
+            }
         },    
         class Defend {
             constructor() {
@@ -1446,6 +1471,14 @@ module.exports = {
                 this.name += '+';
                 this.upgraded = true;
                 this.block = 8;
+            }
+
+            play() {
+                if (character.frail > 0) {
+                    character.block += Math.floor((this.block + character.dexterity) * 0.75);
+                } else {
+                    character.block += this.block + character.dexterity;
+                }
             }
         }
     ],

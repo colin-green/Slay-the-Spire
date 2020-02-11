@@ -1,4 +1,4 @@
-// var inquirer = require('inquirer');
+var inquirer = require('inquirer');
 var cards = require('./cards');
 var relics = require('./relics');
 var enemies = require('./enemies');
@@ -10,11 +10,18 @@ class Character {
         this.currentEnergy = 3;
         this.potionBeltSize = 3;
         this.cardChoicCount = 3;
+        this.startingHandDraw = 5;
+        this.cardsPerTurn = 5;
         this.deck = [findCardRelicEnemy(cards.colorlessCardPool, 'Strike'), findCardRelicEnemy(cards.colorlessCardPool, 'Strike'), findCardRelicEnemy(cards.colorlessCardPool, 'Strike'), findCardRelicEnemy(cards.colorlessCardPool, 'Strike'), findCardRelicEnemy(cards.colorlessCardPool, 'Defend'), findCardRelicEnemy(cards.colorlessCardPool, 'Defend'), findCardRelicEnemy(cards.colorlessCardPool, 'Defend'), findCardRelicEnemy(cards.colorlessCardPool, 'Defend'), findCardRelicEnemy(cards.cursePool, 'Ascender\'s Bane')];
         this.relics = [];
         this.potions = [];
         this.block = 0;
         this.HPLossCount = 0;
+        this.strength = 0;
+        this.dexterity = 0;
+        this.weak = 0;
+        this.frail = 0;
+        this.vulnerable = 0;
     }
 }
 
@@ -57,6 +64,8 @@ class Watcher extends Character {
 var character = new Ironclad;
 var floor = 0;
 var hallwayCounter = 0;
+var enemies;
+var turn = 1;
 var prevHallway;
 var prevElite;
 var drawPile = [];
@@ -64,7 +73,6 @@ var hand = [];
 var discard = [];
 var exhaust = [];
 var powersPlayed = [];
-var buffsDebuffs = [];
 
 function findCardRelicEnemy(pool, name) {
     for (let i = 0; i < pool.length; i++) {
@@ -148,6 +156,10 @@ function endTurn() {
     })
 
     hand = [];
+
+    enemies.forEach(enemy => {
+        enemy.AI();
+    })
 
     showHand();
     showDrawPile();
@@ -236,25 +248,73 @@ function whaleBonus() {
 
 function determineHallway() {
     if (hallwayCounter < 3) {
-        var fights = [findCardRelicEnemy(enemies.act1Enemies, 'Cultist'), findCardRelicEnemy(enemies.act1Enemies, 'Jaw Worm'), 'Louse x2', 'Small Slimes'];
+        var fights = ['Cultist', 'Jaw Worm', 'Louse x2', 'Small Slimes'];
         if (prevHallway) {
             fights.splice(fights.indexOf(prevHallway), 1);
         }
-        var fight = fights[Math.floor(Math.random() * fights.length)];
+        // var fight = fights[Math.floor(Math.random() * fights.length)];
+        var fight = 'Small Slimes';
         prevHallway = fight;
-        console.log(fight.name);
+        
+        switch (fight) {
+            case 'Cultist':
+                enemies = [findCardRelicEnemy(enemies.act1Enemies, 'Cultist')];
+                break;
+            case 'Jaw Worm':
+                enemies = [findCardRelicEnemy(enemies.act1Enemies, 'Jaw Worm')];
+                break;
+            case 'Louse x2':
+                let louse1 = Math.round(Math.random());
+                if (louse1 === 0) {
+                    louse1 = findCardRelicEnemy(enemies.act1Enemies, 'Louse (Green)');
+                } else {
+                    louse1 = findCardRelicEnemy(enemies.act1Enemies, 'Louse (Red)');
+                }
+                let louse2 = Math.round(Math.random());
+                if (louse2 === 0) {
+                    louse2 = findCardRelicEnemy(enemies.act1Enemies, 'Louse (Green)');
+                } else {
+                    louse2 = findCardRelicEnemy(enemies.act1Enemies, 'Louse (Red)');
+                }
+                enemies = [louse1, louse2];
+                break;
+            case 'Small Slimes':
+                let roll = Math.round(Math.random());
+                if (roll === 0) {
+                    enemies = [findCardRelicEnemy(enemies.act1Enemies, 'Spike Slime (M)'), findCardRelicEnemy(enemies.act1Enemies, 'Acid Slime (S)')];
+                } else {
+                    enemies = [findCardRelicEnemy(enemies.act1Enemies, 'Acid Slime (M)'), findCardRelicEnemy(enemies.act1Enemies, 'Spike Slime (S)')];
+                }
+                break;        
+            default:
+                break;
+        }
     }
 }
 
-// createStarterDeck();
+function showEnemy(enemies) {
+    enemies.forEach(enemy => {
+        console.log(enemy.name);
+        console.log(`${enemy.currentHP}/${enemy.actualHP} HP\n`);
+    })
+}
+
+function startCombat(enemies) {
+    drawPile = character.deck;
+    console.log('New combat:\n');
+    showEnemy(enemies);
+    enemies.forEach(enemy => enemy.AI());
+    enemies.forEach(enemy => enemy.showIntent());
+
+    drawCards(character.startingHandDraw);
+}
+
+createStarterDeck();
 // console.log(character);
 // drawCards(5);
 // endTurn();
 // endTurn();
 // whaleBonus();
 determineHallway();
-determineHallway();
-determineHallway();
-determineHallway();
-determineHallway();
-determineHallway();
+startCombat(enemies);
+// endTurn();
